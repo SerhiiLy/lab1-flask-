@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% from "_render_field.html" import render_field %}
+{% block content %}
+    <div class="col-md-1">
+          <img src="{{ image_file }}" width=90 style="margin:8px">
+    </div>
+    <h1>{{ current_user.username }}</h1>
+    <h1>Email:</h1>
+    <h1>{{ current_user.email }}
+    <h1>Last seen</h1>
+    <p>{{ current_user.last_seen.strftime("%d/%m/%y %H:%M:%S") }}</p>
+    <form id="login-form" method="post" action="{{ url_for('account') }}" enctype="multipart/form-data" style="display: block;">
+    <h1>About me:</h1>
+    {{ current_user.about_me }}
+    {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ render_field(form.email,class="form-control", placeholder="Email") }}
+        </div>
+        <div class="form-group">
+             {{ render_field(form.username, class="form-control", placeholder="Username") }}
+        </div>
+        <div class="form-group">
+            {{ form.picture.label() }}
+            {{  form.picture(class="form-controll-file")  }}
+            {% if form.picture.errors %}
+                {% for error in form.picture.errors %}
+                    <span class="text-danger">{{ error }}</span><br>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ render_field(form.about_me, class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ render_field(form.password, class="form-control", placeholder="Password") }}
+        </div>
+        <div class="form-group">
+            {{ render_field(form.confirm_password, class="form-control", placeholder="Confirm Password") }}
+        </div>
+        <div class="form-group">
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+                {{ form.submit(class='form-control btn btn-login', value="Update") }}
+            </div>
+        </div>
+
+    </form>
+{% endblock %}

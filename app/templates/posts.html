@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if title %}
+        <title> {{title}} - microblog</title>
+    {% else %}
+        <title> microblog </title>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <h1>Hi, {{user.nickname}}!</h1>
+    {% for post in posts %}
+    <h1>{{post.author.nickname}}</h1> says: <b>{{post.body}}</b></p>
+    {% endfor %}
+{% endblock %}
