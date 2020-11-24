@@ -9,8 +9,12 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Hi, {{user.nickname}}!</h1>
+    <h1>Hi, {{ current_user.username }}!</h1>
+    <a href="{{ url_for('new_post') }}">NEW POST</a>
     {% for post in posts %}
-    <h1>{{post.author.nickname}}</h1> says: <b>{{post.body}}</b></p>
+    <h1>{{ post.author.username }}</h1>
+        Post published: <b>{{ post.date_posted.strftime("%d/%m/%y %H:%M:%S") }}</b>
+        <a href="{{ url_for('post', id=post.id) }}"> tema: <b>{{ post.title }}</b></a>
+        says: <b>{{ post.content }}</b>
     {% endfor %}
 {% endblock %}

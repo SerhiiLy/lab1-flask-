@@ -2,7 +2,7 @@ import os
 import secrets
 from flask import render_template, url_for, flash, redirect, request
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm, UpdateAccountForm
+from app.forms import RegistrationForm, LoginForm, UpdateAccountForm, AddPostForm, EditPostForm
 from app.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
 import urllib
@@ -11,17 +11,76 @@ from werkzeug.urls import url_parse
 from datetime import datetime
 from time import gmtime, strftime
 
+
+@app.route("/posts/edit/<int:id>", methods=['POST'])
+@login_required
+def edit_post(id):
+    post = Post.query.get_or_404(id)
+    if post.author != current_user:
+        return redirect(url_for('posts'))
+    form = EditPostForm()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        db.session.commit()
+        flash(f'Post updated!', category='success')
+        return redirect(url_for('posts'))
+    elif request.method == 'GET':
+        form.title.data = post.title
+        form.content.data = post.content
+    return render_template('edit-post.html', title='Edit', form=form, id=id)
+
+
+
+@app.route("/posts/delete/<int:id>", methods=['POST'])
+@login_required
+def delete_post(id):
+    if request.method == 'POST':
+        post = Post.query.get_or_404(id)
+        if post.author == current_user:
+            # Post.query.filter_by(id=id).delete()
+            db.session.delete(post)
+            db.session.commit()
+            flash('Post successfully deleted')
+            return redirect(url_for('posts'))
+    return redirect(url_for('post'), id=id)
+
+
+@app.route("/posts/new", methods=['GET', 'POST'])
+@login_required
+def new_post():
+    form = AddPostForm()
+    if form.validate_on_submit():
+
+        new_post = Post(title=form.title.data,
+                        content=form.content.data, user_id=current_user.id,
+                        author=current_user, date_posted=datetime.utcnow())
+        db.session.add(new_post)
+        db.session.commit()
+        return redirect(url_for('new_post'))
+    return render_template('add-post.html',  form=form)
+
+
+@app.route('/posts/<id>')
+@login_required
+def post(id):
+    post = Post.query.filter_by(id=id).first()
+
+    return render_template('view-post.html', post=post)
+
+
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    # picture_path = os.path.join(app.root_path, 'static/image', picture_fn)
+    picture_path = os.path.join(app.root_path, 'static/image', picture_fn)
     # form_picture.save(picture_path)
     # return picture_fn
     output_size = (125, 125)
     i = Image.open(form_picture)
     i.thumbnail(output_size)
-    i.save
+    i.save(picture_path)
+
     return picture_fn
 
 @app.before_request
@@ -109,18 +168,8 @@ def login():
 
 @app.route('/posts', methods=['GET', 'POST'])
 def posts():
-    user = {'nickname': 'Miguel'}  # видуманий користувач
-    posts = [  # список видуманих постів
-        {
-            'author': {'nickname': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'nickname': 'Susan'},
-            'body': 'The Avengers movie was so cool!'
-        }
-    ]
+    posts = Post.query.all()
+
     return render_template("posts.html",
                            title='Home',
-                           user=user,
                            posts=posts)

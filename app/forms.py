@@ -69,3 +69,13 @@ class UpdateAccountForm(FlaskForm):
             raise ValidationError(f'Користувач з таким емейлом {email.data} вже існує')
 
 
+class AddPostForm(FlaskForm):
+    title = StringField('Title')
+    content = TextAreaField('Content')
+    submit = SubmitField('Create Post')
+
+
+class EditPostForm(FlaskForm):
+    title = StringField('Title')
+    content = TextAreaField('Content')
+    submit = SubmitField('Update Post')

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% from "_render_field.html" import render_field %}
+{% block content %}
+
+    <form id="login-form" method="post" action="{{ url_for('edit_post', id=id) }}" style="display: block;">
+    <h1>About me:</h1>
+    {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ render_field(form.title,class="form-control") }}
+        </div>
+        <div class="form-group">
+             {{ render_field(form.content, class="form-control") }}
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-sm-6 col-sm-offset-3">
+                    {{ form.submit(class='form-control btn btn-primary', value="Update") }}
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}
